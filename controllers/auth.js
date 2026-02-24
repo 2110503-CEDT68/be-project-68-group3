@@ -3,11 +3,12 @@ const User = require('../models/User');
 
 exports.register= async (req,res,next) => {
     try{
-        const {name,email,password,role} = req.body;
+        const {name,telephone_number,email,password,role} = req.body;
         //Create user
         const user=await User.create({
-            name,email,password,role
+            name,telephone_number,email,password,role
         });
+
         //Create token
         //const token=user.getSignedJwtToken();
         //res.status(200).json({success:true,token});
@@ -45,6 +46,22 @@ exports.login= async (req,res,next)=>{
      sendTokenResponse(user,200,res);
 };
 
+exports.logout= async (req,res,next)=>{
+    try{
+        const options= {
+            expires: new Date(Date.now()),
+            httpOnly:true,
+            path: '/'
+        };
+        res.cookie('token','none',options);
+        res.status(200).json({success:true,message:'Logged out successfully'});
+    }
+    catch(error){
+        res.status(500).json({success:false,message:'Logout failed!'});
+        console.log(error.stack);
+    }
+};
+
 const sendTokenResponse=(user,statusCode,res)=>{
     //Create Token
     const token = user.getSignedJwtToken();
@@ -53,7 +70,8 @@ const sendTokenResponse=(user,statusCode,res)=>{
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
         ),
-        httpOnly:true
+        httpOnly:true,
+        path:'/' //cookie will be at root (can access by everyone)
     }
     if(process.env.NODE_ENV==='production'){
         options.secure=true;
