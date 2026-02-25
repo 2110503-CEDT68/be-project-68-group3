@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 //Query Parser
-//app.set('query parser','extended');
+app.set('query parser','extended');
 
 // Mount routers
 app.use('/api/v1/companies', companies);
