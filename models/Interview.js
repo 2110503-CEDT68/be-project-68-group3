@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const Company = require('./Company');
 
-const AppointmentSchema=new mongoose.Schema({
-    apptDate:{
+const InterviewSchema=new mongoose.Schema({
+    intDate:{
         type:Date,
         required:true
     },
@@ -10,9 +11,9 @@ const AppointmentSchema=new mongoose.Schema({
         ref:'user',
         required:true
     },
-    hospital:{
+    company:{
         type:mongoose.Schema.ObjectId,
-        ref:'Hospital',
+        ref:'company',
         required:true
     },
     createdAt:{
@@ -21,4 +22,4 @@ const AppointmentSchema=new mongoose.Schema({
     }
 });
 
-module.exports=mongoose.model('Appointment',AppointmentSchema);
+module.exports=mongoose.model('Interview',InterviewSchema);
