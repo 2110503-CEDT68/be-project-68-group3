@@ -9,8 +9,7 @@
     },
     telephone_number:{
     type: String,
-    required:[true,'Please add a telephone number'],
-    unique:true,    
+    required:[true,'Please add a telephone number'],   
     match: [
         /^0\d{2}-\d{7}$/, 
         'Please add a valid telephone number in the format 0XX-XXXXXXX'

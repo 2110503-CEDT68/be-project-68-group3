@@ -1,5 +1,6 @@
 const Interview = require('../models/Interview');
 const Company = require('../models/Company');
+const User = require('../models/User');
 
 // @desc      Get all interviews
 // @route     GET /api/v1/interviews
@@ -64,10 +65,17 @@ exports.addInterview = async (req, res, next) => {
     try {
         req.body.company = req.params.companyId;
         req.body.user = req.user.id;
+        console.log(req.params.companyId);
+        console.log(req.user.id);
 
         const company = await Company.findById(req.params.companyId);
-        if (!company) {
+        if (!company) { 
             return res.status(404).json({ success: false, message: `No company with id of ${req.params.companyId}` });
+        }
+
+        const user = await User.findById(req.user.id);
+        if(!user){
+            return res.status(404).json({ success: false, message: `User with id of ${req.user.id} not found`});
         }
 
         // Business Logic: Max 3 interviews per user (unless Admin)
@@ -78,6 +86,14 @@ exports.addInterview = async (req, res, next) => {
                 message: `The user with ID ${req.user.id} has already made 3 interviews` 
             });
         }
+
+        const intDate = new Date(req.body.intDate);
+        const startDate = new Date('2022-05-10T00:00:00Z');
+        const endDate = new Date('2022-05-13T23:59:59Z');
+        if(intDate < startDate || intDate > endDate){
+            return res.status(400).json({success:false,message:'Interview date must be between 10-05-2022 and 13-05-2022'});
+        }
+
 
         const interview = await Interview.create(req.body);
 

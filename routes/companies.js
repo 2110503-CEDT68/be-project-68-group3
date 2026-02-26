@@ -8,7 +8,7 @@ const router = express.Router();
 
 const{protect,authorize} = require('../middleware/auth');
 
-router.use('/:companyId/interviews/',InterviewRouter);
+router.use('/:companyId/interviews',InterviewRouter);
 
 router.route('/').get(getCompanies).post(protect,authorize('admin'),createCompany);
 router.route('/:id').get(getCompany).put(protect,authorize('admin'),updateCompany).delete(protect,authorize('admin'),deleteCompany);
