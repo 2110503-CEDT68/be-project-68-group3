@@ -13,7 +13,7 @@ const InterviewSchema=new mongoose.Schema({
     },
     company:{
         type:mongoose.Schema.ObjectId,
-        ref:'company',
+        ref:'Company',
         required:true
     },
     createdAt:{
