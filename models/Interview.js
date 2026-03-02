@@ -67,9 +67,16 @@ InterviewSchema.pre('save', async function () {
 });
 
 InterviewSchema.virtual('live_match').get(function() {
-  if (!this.user.specializations || !this.company.strengths) return [];
-  return this.user.specializations.filter(spec => 
-    this.company.strengths.includes(spec)
+  // Check if both user and company exist AND have been populated (are objects)
+  if (!this.user || !this.company || typeof this.user !== 'object' || typeof this.company !== 'object') {
+    return [];
+  }
+
+  const userSpecs = this.user.specializations || [];
+  const companyStrengths = this.company.strengths || [];
+
+  return userSpecs.filter(spec => 
+    companyStrengths.includes(spec)
   );
 });
 
