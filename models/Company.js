@@ -18,12 +18,16 @@ const CompanySchema = new mongoose.Schema({
     },
     description:{
         type:String,
-        required: [true,'Please add description'],
+        required:[true,'Please add description'],
     },
     tel:{
         type:String,
         required:[true,'Please add a telephone number']
-    }
+    }, 
+    specializations: [{
+        type: String,
+        required:[true,'Please add company\'s specializations']
+    }]
 },{
     toJSON:{virtuals:true},
     toObject:{virtuals:true}

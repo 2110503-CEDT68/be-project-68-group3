@@ -16,9 +16,14 @@ exports.getInterviews = async (req, res, next) => {
             query = Interview.find();
         }
 
-        const interviews = await query.populate({
+        const interviews = await query
+        .populate({
             path: 'company',
-            select: 'name website tel'
+            select: 'name website tel specializations'
+        })
+        .populate({
+            path: 'user',
+            select: 'name email specializations'
         });
 
         res.status(200).json({
@@ -37,9 +42,14 @@ exports.getInterviews = async (req, res, next) => {
 // @access    Private
 exports.getInterview = async (req, res, next) => {
     try {
-        const interview = await Interview.findById(req.params.id).populate({
+        const interview = await Interview.findById(req.params.id)
+        .populate({
             path: 'company',
-            select: 'name website tel'
+            select: 'name website tel specializations'
+        })
+        .populate({
+            path: 'user',
+            select: 'name email specializations'
         });
 
         if (!interview) {
@@ -64,7 +74,7 @@ exports.getInterview = async (req, res, next) => {
 exports.addInterview = async (req, res, next) => {
     try {
         req.body.company = req.params.companyId;
-        req.body.user = req.user.id;
+        //req.body.user = req.user.id;
         console.log(req.params.companyId);
         console.log(req.user.id);
 
@@ -77,6 +87,16 @@ exports.addInterview = async (req, res, next) => {
         if(!user){
             return res.status(404).json({ success: false, message: `User with id of ${req.user.id} not found`});
         }
+
+        const userSpecs = Array.isArray(user.specializations) ? user.specializations : [];
+        const companySpecs = Array.isArray(company.specializations) ? company.specializations : [];
+
+        const cleanUserSpecs = userSpecs.map(s => String(s).trim());
+        const cleanCompanySpecs = companySpecs.map(s => String(s).trim());
+
+        req.body.matching_specialization = cleanUserSpecs.filter(spec => 
+            cleanCompanySpecs.includes(spec)
+        );
 
         // Business Logic: Max 3 interviews per user (unless Admin)
         const existedInterviews = await Interview.find({ user: req.user.id });
@@ -117,6 +137,23 @@ exports.updateInterview = async (req, res, next) => {
 
         if (interview.user.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, message: "Not authorized to update this interview" });
+        }
+
+        const userId = req.body.user || interview.user;
+        const companyId = req.body.company || interview.company;
+
+        const [userData, companyData] = await Promise.all([
+            User.findById(userId),
+            Company.findById(companyId)
+        ]);
+
+        if (userData && companyData) {
+            const userSpecs = userData.specializations || [];
+            const companySpecs = companyData.specializations || [];
+            
+            req.body.matching_specializations = userSpecs.filter(spec => 
+                companySpecs.includes(spec)
+            );
         }
 
         interview = await Interview.findByIdAndUpdate(req.params.id, req.body, {

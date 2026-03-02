@@ -107,6 +107,24 @@ exports.updateCompany = async (req, res, next) => {
         if (!company) {
             return res.status(404).json({ success: false });
         }
+
+        if (req.body.specializations) {
+            const interviews = await Interview.find({ company: company._id }).populate('user');
+            
+            const updatePromises = interviews.map(interview => {
+                const userSpecs = interview.user.specializations || [];
+                const companySpecs = company.specializations || [];
+                
+                const matches = userSpecs.filter(spec => companySpecs.includes(spec));
+                
+                return Interview.findByIdAndUpdate(interview._id, { 
+                    matching_specializations: matches 
+                });
+            });
+            
+            await Promise.all(updatePromises);
+        }
+        
         res.status(200).json({ success: true, data: company });
     } catch (err) {
         res.status(400).json({ success: false });
