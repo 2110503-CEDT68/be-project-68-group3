@@ -10,8 +10,6 @@
 
 [![GitHub issues](https://img.shields.io/github/issues/2110503-CEDT68/be-project-68-group3?style=for-the-badge)](https://github.com/2110503-CEDT68/be-project-68-group3/issues)
 
-[![GitHub license](https://img.shields.io/github/license/2110503-CEDT68/be-project-68-group3?style=for-the-badge)](LICENSE) <!-- TODO: Add LICENSE file to the repository -->
-
 **A robust and scalable RESTful API backend for your web applications.**
 
 </div>
