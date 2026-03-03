@@ -112,13 +112,20 @@ exports.updateCompany = async (req, res, next) => {
             const interviews = await Interview.find({ company: company._id }).populate('user');
             
             const updatePromises = interviews.map(interview => {
-                const userSpecs = interview.user.specializations || [];
-                const companySpecs = company.specializations || [];
+                if (!interview.user) return Promise.resolve();
+
+                const userSpecs = Array.isArray(interview.user.specializations) ? interview.user.specializations : [];
+                const companySpecs = Array.isArray(company.specializations) ? company.specializations : [];
+
+                const cleanCompanySpecs = companySpecs.map(s => String(s).trim().toLowerCase());
                 
-                const matches = userSpecs.filter(spec => companySpecs.includes(spec));
+                const matches = userSpecs.filter(spec => {
+                    const cleanSpec = String(spec).trim().toLowerCase();
+                    return cleanCompanySpecs.includes(cleanSpec);
+                });
                 
                 return Interview.findByIdAndUpdate(interview._id, { 
-                    matching_specializations: matches 
+                    matching_specialization: matches 
                 });
             });
             
@@ -127,7 +134,7 @@ exports.updateCompany = async (req, res, next) => {
         
         res.status(200).json({ success: true, data: company });
     } catch (err) {
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, message: err });
     }
 };
 

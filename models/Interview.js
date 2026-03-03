@@ -66,11 +66,13 @@ InterviewSchema.pre('save', async function () {
   }
 });
 
+/*
 InterviewSchema.virtual('live_match').get(function() {
   if (!this.user.specializations || !this.company.strengths) return [];
   return this.user.specializations.filter(spec => 
     this.company.strengths.includes(spec)
   );
 });
+*/
 
 module.exports=mongoose.model('Interview',InterviewSchema);
