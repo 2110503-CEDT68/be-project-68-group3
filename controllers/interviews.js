@@ -1,6 +1,17 @@
 const Interview = require('../models/Interview');
 const Company = require('../models/Company');
 const User = require('../models/User');
+async function safeSendEmail(options) {
+  try {
+    // require แบบไดนามิคเพื่อไม่ให้ require ตอน startup ถ้าไฟล์หายจะไม่พัง
+    const sendEmail = require('../utils/sendEmail');
+    return await sendEmail(options);
+  } catch (err) {
+    // ถ้าโมดูลไม่มีหรือ error ในการ require -> แจ้ง แต่ไม่ขัดการทำงานของโปรเจกต์
+    console.warn('sendEmail module not found or failed. Skipping email send. Error:', err && err.message);
+    return;
+  }
+}
 
 // @desc      Get all interviews
 // @route     GET /api/v1/interviews
@@ -94,9 +105,26 @@ exports.addInterview = async (req, res, next) => {
             return res.status(400).json({success:false,message:'Interview date must be between 10-05-2022 and 13-05-2022'});
         }
 
-
+        // 3. Create the Interview record
         const interview = await Interview.create(req.body);
 
+        // 4. Prepare English Email Content
+        const message = `Dear ${user.name},\n\n` +
+            `Your job interview session has been successfully booked with the following details:\n\n` +
+            `- Company: ${company.name}\n` +
+            `- Interview Date: ${intDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n` +
+            `- Your Contact Number: ${user.telephone_number}\n` + 
+            `- Specialization: ${user.specialization || 'General'}\n\n` +
+            `We wish you the best of luck with your upcoming interview!\n\n` +
+            `Best regards,\n` +
+            `Online Job Fair Registration System`;
+
+        // 5. Send Confirmation Email (Async)
+        await safeSendEmail({
+            email: user.email,
+            subject: 'Job Interview Appointment Confirmation',
+            message
+        });
         res.status(201).json({ success: true, data: interview });
     } catch (error) {
         console.error(error);
