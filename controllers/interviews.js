@@ -125,10 +125,10 @@ exports.addInterview = async (req, res, next) => {
             return res.status(400).json({success:false,message:'Interview date must be between 10-05-2022 and 13-05-2022'});
         }
 
-        // 3. Create the Interview record
+        
         const interview = await Interview.create(req.body);
 
-        // 4. Prepare English Email Content
+        
         const message = `Dear ${user.name},\n\n` +
             `Your job interview session has been successfully booked with the following details:\n\n` +
             `- Company: ${company.name}\n` +
