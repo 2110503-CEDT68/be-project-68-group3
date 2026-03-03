@@ -54,6 +54,20 @@ app.use('/api/v1/companies', companies);
 app.use('/api/v1/auth',auth);
 app.use('/api/v1/interviews',interviews);
 
+//Test Connect
+app.get('/', (req,res) => {
+  // Get the full URL (Protocol + Host + Path)
+  const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  
+  // Get current time in a readable format
+  const currentTime = new Date().toLocaleString();
+
+  res.status(200).json({
+    success: true,
+    message: `Connected to ${fullUrl} at ${currentTime}`
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Assign the listener to a variable
